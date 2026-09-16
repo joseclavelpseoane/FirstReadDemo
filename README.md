@@ -1,132 +1,108 @@
-# football-pbp-stats
+<div align="center">
 
-Derives American football statistics from a play-by-play log. Pure functions, zero dependencies,
-33 tests.
+# FirstRead
 
-This is the derivation engine extracted from **FirstRead**, a stats platform I built for the
-coaching staff of an amateur club in Spain. The product is private; this module is the part worth
-reading.
+**Stats platform for American football clubs.**
+Record the game play by play. Everything else computes itself.
+
+![FirstRead](media/home.png)
+
+</div>
+
+---
+
+## Record the game
+
+Sixteen drives, 103 plays, one season. Every play carries down and distance, field position, the
+players involved and the yardage — captured from the sideline on a tablet while the game is
+running.
+
+![Play by play](media/pbp.gif)
+
+52px touch targets. A jersey-number grid instead of dropdowns. A stepper for yardage. The system
+keyboard never opens, and one screen asks one question.
+
+## Read the game
+
+Four lenses over the same play log — the whole game, by down, by player, by drive. Change the lens,
+not the data.
+
+![Game analysis](media/analisis.gif)
+
+Yards per play, third-down conversion, red-zone efficiency, explosives, drive charts, per-player box
+scores. Every rate prints its own fraction underneath. Small samples get flagged instead of averaged
+away. No number in this app was ever typed in by hand.
+
+## Build the roster
+
+![Roster](media/plantilla.gif)
+
+Offense, defense, specialists and coaching staff. Jersey number, position and unit belong to the
+**season**, not the person — so a player changing number next year doesn't rewrite last year's box
+score. Two-way players sit in both units without being duplicated. Paste a list to import a whole
+squad.
+
+## Run the club
+
+Dues, payments, movements and collection status per player — who's paid, who's partial, who's 47
+days overdue, and how much of the season's budget is actually in the account. The part of running an
+amateur club that has nothing to do with football and eats a coach's week anyway.
+
+---
+
+## Why it exists
+
+Hudl costs more than a lower-division club can pay, and it sells video. FirstRead skips video
+entirely — that's Hudl's moat — and competes where it doesn't: **honest derivation**.
+
+|  | FirstRead | Spreadsheet | Hudl |
+|---|---|---|---|
+| Cost to a Division II club | one licence | free | out of reach |
+| Stats | derived from the play log | typed by hand | video-tagged |
+| Correcting a play afterwards | fixes every number downstream | fix it in nine places | re-tag |
+| Runs without an analyst | yes | technically | no |
+
+## How it's built
+
+```mermaid
+flowchart LR
+    PBP["Play-by-play capture<br/>(sideline, tablet)"] --> DB[("SQLite<br/>plays · drives · rosters")]
+    DB --> ENGINE["Derivation engine<br/>playStats.js"]
+    ENGINE --> GAME["Game analysis"]
+    ENGINE --> SEASON["Season cover"]
+    ENGINE --> PLAYER["Player pages"]
+    ENGINE --> ROSTER["Depth chart"]
+```
+
+Plays go in. Nothing else is ever stored. There is no `stats` table, no cached totals, and no
+`score` column — the scoreboard itself is summed from the points on each play. One engine feeds
+every screen, so two views can't disagree about the same game.
+
+**Stack:** React + Vite · Express · SQLite compiled to WASM (`sql.js` — no native build, a coach
+installs it without a toolchain) · raw SQL, no ORM · ~11k lines.
+
+## The engine is in this repo
+
+The derivation layer is here, extracted and standalone — [`src/`](src/), with
+[33 tests](test/) and zero dependencies.
 
 ```bash
-npm test     # node --test, no framework
+npm test     # tests 33 | pass 33 | fail 0
 ```
+
+It's the part worth reading: a safety scores for the defending team, so the scoring side can't be
+read off possession. Penalty yardage is excluded from a player's stats but not from the ball's
+position. A sack is a pass play. A kickoff is not a drive. Each test names the failure it prevents.
+
+The rest of the platform is private — it launches commercially in 2027.
 
 ---
 
-## The premise
+<div align="center">
 
-There is no `stats` table anywhere in FirstRead. Not passing yards, not third-down rate, not even
-the score. The play-by-play log is the only thing stored, and every number is computed from it on
-read — by this module, which is the single definition of how a play becomes a number.
+**Built for the coaching staff of an amateur club in Spain.**
+Screenshots use demo data.
 
-That constraint is the whole design. A stored statistic is a second source of truth, and second
-sources of truth drift: a coach corrects a misattributed tackle three days after the game, and now
-the box score, the season averages and the player's page disagree with the play log and with each
-other. Derive instead, and the correction propagates for free.
+© 2026 Jose Clavel · All rights reserved · public to read, not licensed for reuse
 
-The cost is that the derivation has to be right, which is what the tests are for.
-
-## What it computes
-
-| Function | What it gives you |
-|---|---|
-| `scoringSide(play)` | which side a play's points go to |
-| `sideStats(plays, drives, side, results)` | yards, YPP, explosives, first downs, third-down conversion, red-zone trips, turnovers |
-| `playerStats(plays)` | full box score: rushing, passing, receiving, defense, kicking, returns |
-| `downSplit(plays, side)` | run/pass tendency and success rate for one down |
-| `downDistanceGrid(plays, side)` | the down × distance matrix (short 1-3 / medium 4-7 / long 8+) |
-| `buildDriveResults(plays)` | how each drive ended |
-| `filterPlays(plays, filter)` | situational subset — a quarter, a half, a down |
-| `parseSpot` / `advance` / `inRedZone` | field position in absolute 0–100 yards |
-
-Everything takes plain objects. No database, no framework, no I/O.
-
-```js
-import { sideStats, buildDriveResults } from "football-pbp-stats";
-
-const results = buildDriveResults(plays);
-const us = sideStats(plays, drives, "us", results);
-// { plays: 61, yards: 315, ypp: 5.16, thirdConv: 7, thirdAtt: 13, redTrips: 3, redTD: 2, ... }
-```
-
-## Decisions worth explaining
-
-**A safety scores for the defense, so the scoring side can't be read off possession.**
-Every other play awards points to whoever has the ball. `scoringSide` exists because that one
-exception can't be derived from `has_offense` / `has_defense` alone — and getting it wrong puts
-the entire game's scoreboard two points out.
-
-**Penalty yardage is deliberately excluded from `yards_gained`.**
-A running back who gains 7 on a play wiped out by a holding call still gained 7 — his average
-shouldn't absorb someone else's penalty. But the ball genuinely moved backwards, so field position
-has to walk the *net*. Two different numbers for two different questions: `yards_gained` for
-people, `netYards()` for the ball.
-
-**A sack is a pass play.**
-Standard charting convention: it's a dropback, so it belongs to the pass tendency, not the run
-tendency. It consumes a down and produces negative yardage, but calling it a run would make every
-run/pass split lie about what was called.
-
-**Success rate is down-dependent.**
-40% of the distance on first down, 60% on second, and on third or fourth the only success is the
-conversion. Gaining 9 on 3rd-and-10 is not 90% of a success — it's a punt.
-
-**Kickoffs are not drives.**
-They live in the same table as drives and also carry a possession side, so anything that walks
-drives has to filter them out explicitly. Without that filter a kickoff starting on the opponent's
-15 registers as a red-zone trip, and red-zone efficiency quietly inflates. The filter lives inside
-`sideStats` rather than at the call sites, so the trap can't be re-armed by the next caller.
-
-**A touchdown counts as a red-zone trip even when the drive is under-recorded.**
-Defensive series get logged less completely than offensive ones. A touchdown passed through the
-red zone by definition, so it's counted as a trip even if the logged plays don't add up to one —
-otherwise a touchdown drive reports 0/0 red-zone efficiency.
-
-**Coverage tackles are counted separately from defensive tackles.**
-Special teams is a different unit. Merging them inflates the tackle count of every linebacker who
-also covers kicks.
-
-**Punt return yardage is credited to the punter, not a returner.**
-On a punt the returner belongs to the other team, and this is a single-sided system — only your
-own players are recorded. The yardage is stored against the punter so net punting works: gross
-measures the leg, net measures the field position actually gained, which is the reason you punt.
-
-**Longest field goal counts makes only.**
-A missed 55-yarder is not a range record.
-
-## Tests
-
-33 tests, `node:test`, no framework and no fixtures. They're written to document the decisions
-above — each one names the failure it prevents rather than the function it calls.
-
-```
-npm test
-# tests 33 | pass 33 | fail 0
-```
-
-## Shape of the data
-
-Plays are plain objects. Only the fields a given function reads need to be present:
-
-```js
-{
-  sequence: 12, quarter: "Q2", down: 3, yards_to_go: 7, yards_gained: 11,
-  has_offense: true, has_defense: false, has_special: false,
-  label: "PASE", outcome: null, drive_id: 4,
-  offense: {
-    executor_roster_id: 1,  executor_snapshot: { name: "...", jersey: 7 },
-    receiver_roster_id: 2,  receiver_snapshot: { name: "...", jersey: 80 },
-    penalty_yards: 0,
-  },
-}
-```
-
-`*_snapshot` is a frozen copy of who that player was at the moment of the play, stored alongside a
-stable roster id. It's what keeps a box score from last season correct after a player changes
-jersey number — history is a record, not a view.
-
-Source comments are in Spanish, like the product and the people it was built for.
-
----
-
-© 2026 Jose Clavel. All rights reserved. Public so it can be read; not licensed for reuse.
+</div>
