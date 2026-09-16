@@ -5,7 +5,7 @@
 **Stats platform for American football clubs.**
 Record the game play by play. Everything else computes itself.
 
-![FirstRead](media/home.png)
+![FirstRead](docs/media/home.png)
 
 </div>
 
@@ -17,7 +17,7 @@ Sixteen drives, 103 plays, one season. Every play carries down and distance, fie
 players involved and the yardage — captured from the sideline on a tablet while the game is
 running.
 
-![Play by play](media/pbp.gif)
+![Play by play](docs/media/pbp.gif)
 
 52px touch targets. A jersey-number grid instead of dropdowns. A stepper for yardage. The system
 keyboard never opens, and one screen asks one question.
@@ -27,7 +27,7 @@ keyboard never opens, and one screen asks one question.
 Four lenses over the same play log — the whole game, by down, by player, by drive. Change the lens,
 not the data.
 
-![Game analysis](media/analisis.gif)
+![Game analysis](docs/media/analisis.gif)
 
 Yards per play, third-down conversion, red-zone efficiency, explosives, drive charts, per-player box
 scores. Every rate prints its own fraction underneath. Small samples get flagged instead of averaged
@@ -35,7 +35,7 @@ away. No number in this app was ever typed in by hand.
 
 ## Build the roster
 
-![Roster](media/plantilla.gif)
+![Roster](docs/media/plantilla.gif)
 
 Offense, defense, specialists and coaching staff. Jersey number, position and unit belong to the
 **season**, not the person — so a player changing number next year doesn't rewrite last year's box
