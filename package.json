@@ -1,0 +1,19 @@
+{
+  "name": "football-pbp-stats",
+  "version": "1.0.0",
+  "description": "Derives American football statistics from a play-by-play log. Pure functions, no dependencies.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "keywords": [
+    "american-football",
+    "sports-analytics",
+    "play-by-play",
+    "statistics"
+  ],
+  "author": "Jose Clavel",
+  "private": true,
+  "license": "UNLICENSED"
+}
