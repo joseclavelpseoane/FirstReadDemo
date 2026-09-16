@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="FirstRead — a play-by-play stats platform built for the coaching staff of an amateur American football club. Record the game; every statistic computes itself.">
+<meta property="og:title" content="FirstRead">
+<meta property="og:description" content="Record the game play by play. Every statistic computes itself.">
+<meta property="og:image" content="media/home.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8F%88</text></svg>">
+<style>
+  html { color-scheme: dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+</style>
+<title>FirstRead</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  /* Un solo mundo visual, deliberadamente oscuro: es el del propio producto, y todas las
+     capturas son de una UI oscura. Una página clara enmarcando pantallas negras se pelea
+     consigo misma. Se pinta todo explícitamente para que aguante sobre cualquier fondo. */
+  :root {
+    --ground:   #0A0B0D;
+    --plane-1:  #131519;
+    --line:     #23272F;
+    --line-2:   #2E343E;
+    --ink:      #ECEEF3;
+    --ink-2:    #9BA1AF;
+    --ink-3:    #676D7A;
+    --chrome:   #9B8CFF;
+    --field:    #2F6FB8;
+    --rival:    #B33A32;
+    --ok:       #5BB98C;
+    --warn:     #D9A441;
+    --maxw:     1020px;
+  }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: 20px; }
+  h1, h2 { font-family: Archivo, "Arial Narrow", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3);
+    margin: 0;
+  }
+
+  /* ─── Hero: el campo del propio producto, teñido de banda a banda ───── */
+  .hero { position: relative; padding-block: 92px 60px; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(47,111,184,.30) 0%, rgba(47,111,184,.10) 46%,
+                             rgba(179,58,50,.10) 54%, rgba(179,58,50,.26) 100%),
+      repeating-linear-gradient(90deg, transparent 0 79px, rgba(255,255,255,.035) 79px 80px);
+    mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+  }
+  .hero > * { position: relative; }
+  .hero h1 {
+    font-size: clamp(60px, 13.5vw, 150px); font-weight: 900; line-height: .86;
+    letter-spacing: -.04em; margin-block: 20px 0;
+  }
+  .hero h1 .read { color: var(--ink-3); }
+  .lede {
+    font-size: clamp(20px, 3vw, 29px); line-height: 1.32; max-width: 19ch;
+    margin-block: 26px 0; font-weight: 500;
+  }
+  .lede b { color: var(--chrome); font-weight: 600; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 32px 0; }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px;
+    padding: 6px 13px; background: rgba(19,21,25,.7); backdrop-filter: blur(4px);
+  }
+
+  /* ─── Capturas: el peso visual de la página ────────────────────────── */
+  figure { margin: 0; }
+  .shot {
+    border: 1px solid var(--line-2); border-radius: 12px; overflow: hidden;
+    background: var(--plane-1); box-shadow: 0 24px 60px -28px rgba(0,0,0,.95);
+  }
+  .shot img { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
+    color: var(--ink-3); margin-block-start: 12px;
+  }
+
+  /* ─── Secciones ────────────────────────────────────────────────────── */
+  section { padding-block: 72px 0; }
+  section h2 {
+    font-size: clamp(30px, 5.4vw, 48px); font-weight: 700; letter-spacing: -.025em;
+    margin-block: 12px 0; max-width: 17ch;
+  }
+  .say { color: var(--ink-2); max-width: 54ch; margin-block: 16px 30px; font-size: 16.5px; }
+  .say strong { color: var(--ink); font-weight: 600; }
+
+  /* Lista de specs: etiqueta mono + frase. Menos texto que una rejilla de tarjetas
+     y deja que manden las capturas. */
+  .specs { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 0; }
+  .specs li {
+    display: grid; grid-template-columns: 148px 1fr; gap: 22px;
+    padding-block: 13px; border-block-start: 1px solid var(--line); align-items: baseline;
+  }
+  .specs li span:first-child {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--chrome);
+  }
+  .specs li span:last-child { color: var(--ink-2); font-size: 15px; }
+
+  /* ─── Cifras ───────────────────────────────────────────────────────── */
+  .nums {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 30px 16px; margin-block: 34px 0;
+  }
+  .num-v {
+    font-family: Archivo, sans-serif; font-weight: 900; font-size: clamp(36px, 5.4vw, 52px);
+    letter-spacing: -.035em; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .num-v.hl { color: var(--chrome); }
+  .num-l { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-3);
+           margin-block-start: 9px; letter-spacing: .05em; }
+
+  /* ─── Cuotas ───────────────────────────────────────────────────────── */
+  .dues { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--plane-1); }
+  table { border-collapse: collapse; width: 100%; min-width: 400px; }
+  th, td { text-align: left; padding: 12px 18px; font-size: 14px; border-block-start: 1px solid var(--line); }
+  thead th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); font-weight: 500; border-block-start: none;
+  }
+  td.n { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; }
+  .st { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  .st.ok { color: var(--ok); } .st.due { color: var(--warn); } .st.late { color: var(--rival); }
+
+  /* ─── Cierre ───────────────────────────────────────────────────────── */
+  footer {
+    border-block-start: 1px solid var(--line); margin-block-start: 84px;
+    padding-block: 36px 60px;
+    display: flex; flex-wrap: wrap; gap: 26px 40px; justify-content: space-between; align-items: flex-end;
+  }
+  footer a { color: var(--chrome); text-decoration: none; border-block-end: 1px solid transparent; }
+  footer a:hover, footer a:focus-visible { border-block-end-color: var(--chrome); }
+  .rights { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-3); line-height: 1.8; margin: 0; }
+  a:focus-visible { outline: 2px solid var(--chrome); outline-offset: 3px; }
+
+  @media (max-width: 560px) {
+    .hero { padding-block: 56px 40px; }
+    section { padding-block: 56px 0; }
+    .specs li { grid-template-columns: 1fr; gap: 3px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Fútbol americano · Liga española</p>
+    <h1>First<span class="read">Read</span></h1>
+    <p class="lede">Record the game play&nbsp;by&nbsp;play. <b>Every statistic computes itself.</b></p>
+    <div class="chips">
+      <span class="chip">One real club</span>
+      <span class="chip">852 plays recorded</span>
+      <span class="chip">React · Express · SQLite</span>
+      <span class="chip">Solo build</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <figure>
+    <div class="shot">
+      <img src="media/home.png" alt="FirstRead season cover: the next fixture shown across a football field, the season record, and the last game drive by drive.">
+    </div>
+    <figcaption>The season, on one screen — next fixture, record, and the last game drive by drive.</figcaption>
+  </figure>
+
+  <section>
+    <p class="eyebrow">01 — Capture</p>
+    <h2>One tap per play, from the sideline.</h2>
+    <p class="say">
+      A full game is 16 drives and 103 plays, each with its down, distance, field position, players
+      and yardage — entered on a tablet <strong>while the game is running</strong>, by someone who is
+      also coaching it.
+    </p>
+    <figure>
+      <div class="shot">
+        <img src="media/pbp.gif" alt="Animation: opening a drive in the play-by-play screen, revealing each snap with its down and distance, field position, players and yardage.">
+      </div>
+      <figcaption>Opening a drive: every snap, with its down, spot, executor and result.</figcaption>
+    </figure>
+    <ul class="specs">
+      <li><span>No keyboard</span><span>A jersey-number grid instead of dropdowns, a stepper for yardage.</span></li>
+      <li><span>Gloves, low light</span><span>52-pixel targets. One screen asks one question.</span></li>
+      <li><span>Real undo</span><span>A deleted play comes back where it was, not at the end.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">02 — Payoff</p>
+    <h2>Four ways to read the same game.</h2>
+    <p class="say">
+      The whole game, by down, by player, by drive. Yards per play, third-down conversion, red-zone
+      efficiency, box scores. <strong>No number in this app was ever typed in by hand</strong> — every
+      one of them is computed from the play log.
+    </p>
+    <figure>
+      <div class="shot">
+        <img src="media/analisis.gif" alt="Animation: switching between the game, down, player and drive views of a match, each recomputed from the same play log.">
+      </div>
+      <figcaption>Same game, four lenses. Change the question, not the data.</figcaption>
+    </figure>
+    <ul class="specs">
+      <li><span>Shows its work</span><span>54% on third down, and 7/13 printed underneath it.</span></li>
+      <li><span>Flags thin data</span><span>Under five attempts, a number loses its colour and says so.</span></li>
+      <li><span>Corrections travel</span><span>Fix one play days later and everything downstream follows.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">03 — Squad</p>
+    <h2>The depth chart, by unit.</h2>
+    <p class="say">
+      Offence, defence, specialists, staff. Number and position belong to <strong>the season, not the
+      person</strong> — so two-way players sit in both units, and last year's roster stays last year's.
+    </p>
+    <figure>
+      <div class="shot">
+        <img src="media/plantilla.gif" alt="Animation: scrolling the roster screen, showing offence, defence, specialists and coaching staff grouped by unit.">
+      </div>
+      <figcaption>30 players, four groups, two-way players marked.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <p class="eyebrow">04 — The club</p>
+    <h2>The part of coaching that isn't football.</h2>
+    <p class="say">
+      Dues and payments per player: who has paid, who is partial, who is overdue, and how much of the
+      season's budget is actually in the account.
+    </p>
+    <div class="dues">
+      <table>
+        <thead>
+          <tr><th scope="col">Player</th><th scope="col">Method</th><th scope="col" class="n">Expected</th><th scope="col" class="n">Paid</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>#5 Armengot</td><td>Transfer</td><td class="n">180,00 €</td><td class="n">180,00 €</td><td><span class="st ok">● Up to date</span></td></tr>
+          <tr><td>#24 Bonilla</td><td>Transfer</td><td class="n">180,00 €</td><td class="n">90,00 €</td><td><span class="st due">◐ Partial</span></td></tr>
+          <tr><td>#9 Truksinas</td><td>Bizum</td><td class="n">180,00 €</td><td class="n">0,00 €</td><td><span class="st late">▲ 47 days overdue</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figcaption>Example data · 5.400 € expected, 4.140 € collected, 77% of the season.</figcaption>
+  </section>
+
+  <section>
+    <p class="eyebrow">05 — Under it</p>
+    <h2>No stats are stored. That's the whole design.</h2>
+    <p class="say">
+      There is no stats table, no cached totals, no score column — <strong>the scoreboard is summed
+      from the points on each play</strong>. One engine feeds every screen, so two views can't
+      disagree about the same game. Video is deliberately absent: it's Hudl's moat, and Hudl costs
+      more than a lower-division club can pay.
+    </p>
+    <div class="nums">
+      <div><div class="num-v">852</div><div class="num-l">plays</div></div>
+      <div><div class="num-v">8</div><div class="num-l">games</div></div>
+      <div><div class="num-v">14</div><div class="num-l">tables, no ORM</div></div>
+      <div><div class="num-v">11.4k</div><div class="num-l">lines</div></div>
+      <div><div class="num-v hl">0</div><div class="num-l">stats stored</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <p class="eyebrow" style="margin-block-end:10px">Built by</p>
+      <p style="margin:0; font-family:Archivo,sans-serif; font-size:23px; font-weight:700;">Jose Clavel</p>
+      <p style="margin:7px 0 0; color:var(--ink-2); font-size:14.5px;">
+        Design, data model and code ·
+        <a href="https://github.com/joseclavelpseoane/football-pbp-stats">derivation engine on GitHub</a>
+      </p>
+    </div>
+    <p class="rights">
+      MVP closed September 2026<br>
+      Launching to other clubs in 2027<br>
+      © 2026 Jose Clavel · screenshots use demo data
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>
